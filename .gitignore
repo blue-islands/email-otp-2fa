@@ -2,3 +2,6 @@
 otp-core/target/
 otp-storage/target/
 otp-mail/target/
+otp-sample/target/
+otp-web-servlet/target/
+otp-web-spring/target/
