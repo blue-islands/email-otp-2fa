@@ -32,7 +32,6 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Springの最低限（後で用途に合わせて増やす） -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>

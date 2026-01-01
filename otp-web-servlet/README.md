@@ -210,3 +210,21 @@ public class OtpWebInitializer implements ServletContextListener {
 | MFA画面に進まない    | Filter が登録されていない          |
 | 400 / 401 エラー | USER_ID / USER_EMAIL が未設定 |
 | 何度もOTP要求される   | MFA_OK をセットしていない          |
+
+---
+
+## 9. otp-web-spring との違い
+
+| 項目         | servlet       | spring               |
+| ---------- | ------------- | -------------------- |
+| 登録方法       | 手動（Listener）  | AutoConfig           |
+| Controller | HttpServlet   | @RestController      |
+| Filter     | javax/jakarta | OncePerRequestFilter |
+| 設定         | Javaコード       | application.yml      |
+
+---
+
+## ライセンス / 利用
+
+このモジュールは **横展・再利用を前提**としています。
+商用・非商用問わず、プロジェクトの MFA 実装のベースとして利用できます。
