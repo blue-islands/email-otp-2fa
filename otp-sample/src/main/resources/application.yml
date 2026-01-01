@@ -1,0 +1,23 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:otp;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+
+otp:
+  web:
+    app-name: "OTP Sample"
+    mfa-page-path: "/mfa"
+    start-path: "/mfa/start"
+    verify-path: "/mfa/verify"
+    success-redirect: "/app"
+    failure-redirect: "/mfa?error=1"
+    protected-path-prefixes:
+      - "/app"
