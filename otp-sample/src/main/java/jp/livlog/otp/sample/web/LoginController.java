@@ -15,8 +15,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public String login(
-            @RequestParam String userId,
-            @RequestParam String password,
+            @RequestParam("userId") String userId,
+            @RequestParam("password") String password,
             HttpSession session
     ) {
         // ★ サンプル用：固定認証
