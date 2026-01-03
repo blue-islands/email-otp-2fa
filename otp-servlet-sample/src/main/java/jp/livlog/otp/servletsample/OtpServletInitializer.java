@@ -173,7 +173,7 @@ public class OtpServletInitializer implements ServletContextListener {
 
         @Override
         public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
-            return DriverManager.getParentLogger();
+            return java.util.logging.Logger.getLogger(java.util.logging.Logger.GLOBAL_LOGGER_NAME);
         }
 
         @Override
