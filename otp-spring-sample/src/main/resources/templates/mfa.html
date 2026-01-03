@@ -17,11 +17,11 @@
     <h1>メールOTPの確認</h1>
     <p>確認コードはコンソールログに出力されます。</p>
     <p th:if="${error}" class="error">認証に失敗しました。再度お試しください。</p>
-    <form th:action="@{/mfa/start}" method="post">
+    <form method="post" action="/mfa/start" th:action="@{/mfa/start}">
       <button type="submit">確認コードを送信</button>
     </form>
     <hr />
-    <form th:action="@{/mfa/verify}" method="post">
+    <form method="post" action="/mfa/verify" th:action="@{/mfa/verify}">
       <label for="otp">確認コード（6桁）</label>
       <input id="otp" name="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
       <button type="submit">確認</button>

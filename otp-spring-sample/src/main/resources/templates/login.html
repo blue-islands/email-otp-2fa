@@ -17,7 +17,7 @@
     <h1>ログイン</h1>
     <p>ユーザーID: <code>user</code> / パスワード: <code>password</code></p>
     <p th:if="${error}" class="error">認証に失敗しました。</p>
-    <form th:action="@{/login}" method="post">
+    <form method="post" action="/login" th:action="@{/login}">
       <label for="userId">ユーザーID</label>
       <input id="userId" name="userId" required />
       <label for="password">パスワード</label>
