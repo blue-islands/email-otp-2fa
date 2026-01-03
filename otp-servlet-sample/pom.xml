@@ -19,14 +19,17 @@
     <dependency>
       <groupId>jp.livlog</groupId>
       <artifactId>otp-web-servlet</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>jp.livlog</groupId>
       <artifactId>otp-storage</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>jp.livlog</groupId>
       <artifactId>otp-mail</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
@@ -37,15 +40,45 @@
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
+      <version>${h2.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/main/webapp</directory>
+        <includes>
+          <include>WEB-INF/web.xml</include>
+          <include>META-INF/context.xml</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
+          <warSourceDirectory>src/main/webapp</warSourceDirectory>
+          <archive>
+            <manifestEntries>
+              <Implementation-Title>${project.name}</Implementation-Title>
+              <Implementation-Version>${project.version}</Implementation-Version>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
