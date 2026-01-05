@@ -15,8 +15,12 @@ import jp.livlog.otp.web.spring.mail.OtpMailTemplate;
 
 import java.time.Instant;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpringEmailOtp2faService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringEmailOtp2faService.class);
 
     private final String appName;
     private final OtpPolicy policy;
@@ -66,6 +70,10 @@ public class SpringEmailOtp2faService {
     /** OTP発行/再送→保存→メール送信。結果を返す */
     public StartResult start(String userId, String email) {
         Instant now = clock.now();
+        int purged = store.purgeExpiredAndLocked(now);
+        if (purged > 0) {
+            LOGGER.debug("Purged {} stale OTP challenges before issuing. user={}", purged, userId);
+        }
         var existing = store.findLatestPendingByUser(userId);
 
         var resendDecision = existing
@@ -75,6 +83,7 @@ public class SpringEmailOtp2faService {
         if (resendDecision.isPresent()) {
             var decision = resendDecision.get();
             if (decision.failure() != null) {
+                LOGGER.info("Rejecting OTP resend. user={} challenge={} reason={}", userId, decision.failure().challengeId(), decision.failure().status());
                 return decision.failure();
             }
             return sendAndPersist(decision.issued(), email);
@@ -86,13 +95,20 @@ public class SpringEmailOtp2faService {
 
     /** OTP検証→更新保存。VerifyResult を返す */
     public VerifyResult verify(String challengeId, String userId, String otpInput) {
+        Instant now = clock.now();
+        int purged = store.purgeExpiredAndLocked(now);
+        if (purged > 0) {
+            LOGGER.debug("Purged {} stale OTP challenges before verification. user={}", purged, userId);
+        }
         var currentOpt = store.find(challengeId);
         if (currentOpt.isEmpty()) {
+            LOGGER.warn("OTP challenge not found. user={} challenge={}", userId, challengeId);
             return VerifyResult.failure(VerifyResult.Reason.NOT_FOUND);
         }
 
         OtpChallenge current = currentOpt.get();
         if (!Objects.equals(userId, current.userId())) {
+            LOGGER.warn("OTP challenge user mismatch. expectedUser={} actualUser={} challenge={}", userId, current.userId(), challengeId);
             return VerifyResult.failure(VerifyResult.Reason.NOT_FOUND);
         }
         var update = verifier.verify(current, otpInput);
@@ -100,6 +116,15 @@ public class SpringEmailOtp2faService {
         if (update.updated() != null) {
             store.save(update.updated());
         }
+        OtpChallenge after = update.updated() != null ? update.updated() : current;
+        LOGGER.info(
+                "OTP verification evaluated. user={} challenge={} status={} attempts={} reason={}",
+                userId,
+                challengeId,
+                after.status(),
+                after.attempts(),
+                update.result().reason()
+        );
         return update.result();
     }
 
@@ -129,6 +154,13 @@ public class SpringEmailOtp2faService {
                 rendered.textBody(),
                 rendered.htmlBody()
         ));
+        LOGGER.info(
+                "OTP challenge sent. user={} challenge={} resends={} status={}",
+                issued.challenge().userId(),
+                issued.challengeId(),
+                issued.challenge().resends(),
+                issued.challenge().status()
+        );
         return StartResult.sent(issued.challengeId());
     }
 

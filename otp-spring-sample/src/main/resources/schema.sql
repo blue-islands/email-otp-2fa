@@ -8,3 +8,6 @@ CREATE TABLE otp_challenges (
   last_sent_at TIMESTAMP NULL,
   status VARCHAR(16) NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_otp_user_status_sent
+  ON otp_challenges(user_id, status, last_sent_at);
