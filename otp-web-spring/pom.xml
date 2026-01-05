@@ -8,12 +8,19 @@
     <groupId>jp.livlog</groupId>
     <artifactId>email-otp-2fa</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>otp-web-spring</artifactId>
   <packaging>jar</packaging>
 
   <name>otp-web-spring</name>
+
+  <scm>
+    <url>https://github.com/livlog/email-otp-2fa</url>
+    <connection>scm:git:https://github.com/livlog/email-otp-2fa.git</connection>
+    <tag>HEAD</tag>
+  </scm>
 
   <dependencies>
     <dependency>
