@@ -47,6 +47,41 @@
    - `git push origin <ブランチ>` / `git push origin v<version>`
    - GitHub 上で該当タグの Release を公開し、JitPack のビルドをトリガーする
 
+## Maven リポジトリ設定（JitPack / GitHub Packages）
+- 依存または Maven プラグインとして取得する場合は、`jitpack.io` を **`pluginRepository`** としても追加してください（プラグイン解決にはリポジトリ指定が必須です）。
+- GitHub Packages へもデプロイできるようになりました。GitHub Release 作成時に `mvn deploy` が自動実行されます。
+- 具体的な公開・取得手順や GitHub Packages 認証設定については [`docs/PUBLISHING.md`](docs/PUBLISHING.md) を参照してください。
+
+`pom.xml` 例:
+```xml
+<repositories>
+  <repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </repository>
+</repositories>
+<pluginRepositories>
+  <pluginRepository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+  </pluginRepository>
+</pluginRepositories>
+```
+
+GitHub Packages から取得する場合は、`settings.xml` に以下を追加し、`<server>` の認証情報には `GITHUB_TOKEN` などを指定してください。
+
+```xml
+<servers>
+  <server>
+    <id>github</id>
+    <username>${env.GITHUB_ACTOR}</username>
+    <password>${env.GITHUB_TOKEN}</password>
+  </server>
+</servers>
+```
+
+`pom.xml` の `distributionManagement` に `github` が設定されているため、`mvn -pl '!otp-servlet-sample,!otp-spring-sample' -am deploy` で GitHub Packages にデプロイできます。
+
 ## otp-spring-sample の実行方法
 1. 依存を含めてビルドし、そのまま Spring Boot を起動します。
    ```bash
