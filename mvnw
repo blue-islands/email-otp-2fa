@@ -100,8 +100,8 @@ export MAVEN_CMD_LINE_ARGS
 WRAPPER_LAUNCHER=org.apache.maven.wrapper.MavenWrapperMain
 
 wrapperJarPath="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar"
-if [ ! -r "$wrapperJarPath" ]; then
-  log "Couldn't find $wrapperJarPath, downloading it ..."
+if [ ! -r "$wrapperJarPath" ] || [ ! -s "$wrapperJarPath" ]; then
+  log "Couldn't find a valid $wrapperJarPath, downloading it ..."
 
   if [ -n "${MVNW_REPOURL-}" ]; then
     wrapperUrl="$MVNW_REPOURL/org/apache/maven/wrapper/maven-wrapper/3.3.2/maven-wrapper-3.3.2.jar"
@@ -118,11 +118,17 @@ if [ ! -r "$wrapperJarPath" ]; then
   wrapperJarDir=$(dirname "$wrapperJarPath")
   mkdir -p "$wrapperJarDir"
   if command -v wget >/dev/null 2>&1; then
-    wget -q "$wrapperUrl" -O "$wrapperJarPath"
+    wget -q "$wrapperUrl" -O "$wrapperJarPath" || true
   elif command -v curl >/dev/null 2>&1; then
-    curl -s -f -L "$wrapperUrl" -o "$wrapperJarPath"
-  else
-    echo "Error: Please install wget or curl" >&2
+    curl -s -f -L "$wrapperUrl" -o "$wrapperJarPath" || true
+  fi
+
+  if [ ! -s "$wrapperJarPath" ]; then
+    log "Falling back to system Maven because wrapper download failed"
+    if command -v mvn >/dev/null 2>&1; then
+      exec mvn "$@"
+    fi
+    echo "Error: Maven wrapper download failed and no system Maven found" >&2
     exit 1
   fi
 fi

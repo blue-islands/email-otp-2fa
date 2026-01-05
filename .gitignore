@@ -26,3 +26,4 @@ otp-spring-sample/.classpath
 otp-spring-sample/.gitignore
 **/release.properties
 **/pom.xml.releaseBackup
+.mvn/wrapper/maven-wrapper.jar
