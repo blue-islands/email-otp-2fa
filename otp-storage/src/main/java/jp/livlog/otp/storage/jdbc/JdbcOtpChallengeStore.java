@@ -145,6 +145,22 @@ public class JdbcOtpChallengeStore implements OtpChallengeStore {
         }
     }
 
+    @Override
+    public int purgeExpiredAndLocked(Instant now) {
+        final String sql = """
+            DELETE FROM otp_challenges
+             WHERE expires_at < ?
+                OR status IN ('LOCKED', 'EXPIRED', 'VERIFIED')
+            """;
+        try (Connection con = ds.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setTimestamp(1, Timestamp.from(now));
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to purge otp_challenges", e);
+        }
+    }
+
     private OtpChallenge map(ResultSet rs) throws SQLException {
         String challengeId = rs.getString("challenge_id");
         String userId = rs.getString("user_id");

@@ -2,6 +2,7 @@ package jp.livlog.otp.storage;
 
 import jp.livlog.otp.model.OtpChallenge;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface OtpChallengeStore {
@@ -17,5 +18,13 @@ public interface OtpChallengeStore {
      */
     default Optional<OtpChallenge> findLatestPendingByUser(String userId) {
         return Optional.empty();
+    }
+
+    /**
+     * 任意：期限切れやロック済みのレコードを削除するために実装する。
+     * 実装しないストアは 0 を返す。
+     */
+    default int purgeExpiredAndLocked(Instant now) {
+        return 0;
     }
 }

@@ -60,6 +60,27 @@ public class JdbcOtpChallengeStoreTest {
         assertTrue(store.find("ch-1").isEmpty());
     }
 
+    @Test
+    void purgeExpiredAndLockedRemovesObsoleteRows() throws Exception {
+        DataSource ds = h2();
+        initSchema(ds);
+
+        JdbcOtpChallengeStore store = new JdbcOtpChallengeStore(ds);
+        Instant now = Instant.parse("2026-01-01T00:00:00Z");
+
+        store.save(new OtpChallenge("exp", "user-1", "h", now.minusSeconds(10), 0, 0, now.minusSeconds(10), OtpChallenge.Status.PENDING));
+        store.save(new OtpChallenge("locked", "user-1", "h", now.plusSeconds(300), 1, 0, now, OtpChallenge.Status.LOCKED));
+        store.save(new OtpChallenge("verified", "user-1", "h", now.plusSeconds(300), 1, 0, now, OtpChallenge.Status.VERIFIED));
+        store.save(new OtpChallenge("valid", "user-1", "h", now.plusSeconds(300), 0, 0, now, OtpChallenge.Status.PENDING));
+
+        int purged = store.purgeExpiredAndLocked(now);
+        assertEquals(3, purged);
+        assertTrue(store.find("exp").isEmpty());
+        assertTrue(store.find("locked").isEmpty());
+        assertTrue(store.find("verified").isEmpty());
+        assertTrue(store.find("valid").isPresent());
+    }
+
     private DataSource h2() {
         JdbcDataSource ds = new JdbcDataSource();
         ds.setURL("jdbc:h2:mem:otp;MODE=MySQL;DB_CLOSE_DELAY=-1");
